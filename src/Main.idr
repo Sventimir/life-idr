@@ -27,8 +27,7 @@ zoom In cellSize = if cellSize < 21 then cellSize + 3 else cellSize
 
 ofWinCoords : (cellSize : Int) -> Cell -> Maybe Cell
 ofWinCoords cellSize c =
-    let modded = mapCell (flip mod cellSize) c in
-    if modded == (0, 0) then
+    if mapCell (flip mod cellSize) c == (0, 0) then
         Nothing
     else
         Just $ mapCell (flip div cellSize) c
@@ -68,8 +67,6 @@ switchCell coords = do
             else
                 modify $ record { life = insert cell l }
 
-nextState : StateT Game IO ()
-nextState = modify $ record { life $= stepForward }
 
 eventLoop : () -> StateT Game IO ()
 eventLoop () = do
@@ -81,7 +78,7 @@ eventLoop () = do
         Just (KeyUp KeyDownArrow) => (modify $ record { anchor $= mapRight succ }) >>= eventLoop
         Just (KeyUp KeyLeftArrow) => (modify $ record { anchor $= mapLeft pred }) >>= eventLoop
         Just (KeyUp KeyRightArrow) => (modify $ record { anchor $= mapLeft succ }) >>= eventLoop
-        Just (KeyUp (KeyAny 'n')) => nextState >>= eventLoop
+        Just (KeyUp (KeyAny 'n')) => (modify $ record { life $= stepForward }) >>= eventLoop
         Just (KeyUp (KeyAny 'i')) => (modify $ record { cellSize $= zoom In }) >>= eventLoop
         Just (KeyUp (KeyAny 'o')) => (modify $ record { cellSize $= zoom Out }) >>= eventLoop
         Just (KeyUp (KeyAny 'c')) => (modify $ record { life = initial }) >>= eventLoop
