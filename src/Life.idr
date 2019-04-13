@@ -19,6 +19,14 @@ export
 mapCell : (Int -> Int) -> Cell -> Cell
 mapCell f (x, y) = (f x, f y)
 
+export
+mapLeft : (Int -> Int) -> Cell -> Cell
+mapLeft f (x, y) = (f x, y)
+
+export
+mapRight : (Int -> Int) -> Cell -> Cell
+mapRight f (x, y) = (x, f y)
+
 vectToList : Vect n a -> List a
 vectToList = foldl (flip (::)) []
 

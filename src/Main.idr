@@ -10,8 +10,12 @@ record Game where
     constructor MkGame
     canvas : SDLSurface
     winSize : (Int, Int)
+    anchor : Cell -- The cell in upper-right corner of the window
     cellSize : Int
     life : Life
+
+initial : SDLSurface -> Game
+initial canvas = MkGame canvas (500, 500) (0, 0) 12 Life.initial
 
 data Zoom = In | Out
 
@@ -33,7 +37,13 @@ drawCell : Cell -> StateT Game IO ()
 drawCell (x, y) = do
     c <- gets canvas
     size <- gets cellSize
-    lift $ filledRect c (x * size + 1) (y * size + 1) (size - 2) (size - 2) 255 255 255 1
+    (leftmostX, upmostY) <- gets anchor
+    lift $ filledRect c
+        ((x - leftmostX) * size + 1)
+        ((y - upmostY) * size + 1)
+        (size - 2)
+        (size - 2)
+        255 255 255 1
 
 renderState : StateT Game IO ()
 renderState = do
@@ -48,9 +58,11 @@ switchCell : Cell -> StateT Game IO ()
 switchCell coords = do
     l <- gets life
     size <- gets cellSize
+    (leftmostX, upmostY) <- gets anchor
     case ofWinCoords size coords of
         Nothing => pure ()
-        Just cell =>
+        Just (x, y) =>
+            let cell = (x + leftmostX, y + upmostY) in
             if contains cell l then
                 modify $ record { life = delete cell l }
             else
@@ -65,6 +77,10 @@ eventLoop () = do
     event <- lift pollEvent
     case event of
         Just (KeyUp KeyEsc) => pure ()
+        Just (KeyUp KeyUpArrow) => (modify $ record { anchor $= mapRight pred }) >>= eventLoop
+        Just (KeyUp KeyDownArrow) => (modify $ record { anchor $= mapRight succ }) >>= eventLoop
+        Just (KeyUp KeyLeftArrow) => (modify $ record { anchor $= mapLeft pred }) >>= eventLoop
+        Just (KeyUp KeyRightArrow) => (modify $ record { anchor $= mapLeft succ }) >>= eventLoop
         Just (KeyUp (KeyAny 'n')) => nextState >>= eventLoop
         Just (KeyUp (KeyAny 'i')) => (modify $ record { cellSize $= zoom In }) >>= eventLoop
         Just (KeyUp (KeyAny 'o')) => (modify $ record { cellSize $= zoom Out }) >>= eventLoop
@@ -77,5 +93,5 @@ main = do
     canvas <- startSDL 500 500
     case canvas of
         Nothing => pure ()
-        Just c => (runStateT (eventLoop ()) $ MkGame c (500, 500) 12 initial) >>= \_ => pure ()
+        Just c => (runStateT (eventLoop ()) (initial c)) >>= \_ => pure ()
     endSDL

@@ -27,6 +27,7 @@ Usage
 I believe the interface is quite intuitive, but just to make sure:
 
 * Press [Esc] to exit.
+* Press an arrow key to scroll the view.
 * Press n to go to next generation.
 * Press i to zoom in.
 * Press o to zoom out.
