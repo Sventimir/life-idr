@@ -13,6 +13,14 @@ record Game where
     cellSize : Int
     life : Life
 
+data Zoom = In | Out
+
+
+zoom : Zoom -> (cellSize : Int) -> Int
+zoom Out cellSize = if cellSize > 3 then cellSize - 3 else cellSize
+zoom In cellSize = if cellSize < 21 then cellSize + 3 else cellSize
+
+
 ofWinCoords : (cellSize : Int) -> Cell -> Maybe Cell
 ofWinCoords cellSize c =
     let modded = mapCell (flip mod cellSize) c in
@@ -49,25 +57,25 @@ switchCell coords = do
                 modify $ record { life = insert cell l }
 
 nextState : StateT Game IO ()
-nextState = do
-    l <- gets life
-    modify $ record { life = stepForward l }
+nextState = modify $ record { life $= stepForward }
 
-
-eventLoop : StateT Game IO ()
-eventLoop = do
+eventLoop : () -> StateT Game IO ()
+eventLoop () = do
     renderState
     event <- lift pollEvent
     case event of
         Just (KeyUp KeyEsc) => pure ()
-        Just (KeyUp (KeyAny 'n')) => nextState >>= \() => eventLoop
-        Just (MouseButtonUp Left x y) => switchCell (x, y) >>= \() => eventLoop
-        _ => eventLoop
+        Just (KeyUp (KeyAny 'n')) => nextState >>= eventLoop
+        Just (KeyUp (KeyAny 'i')) => (modify $ record { cellSize $= zoom In }) >>= eventLoop
+        Just (KeyUp (KeyAny 'o')) => (modify $ record { cellSize $= zoom Out }) >>= eventLoop
+        Just (KeyUp (KeyAny 'c')) => (modify $ record { life = initial }) >>= eventLoop
+        Just (MouseButtonUp Left x y) => switchCell (x, y) >>= eventLoop
+        _ => eventLoop ()
 
 main : IO ()
 main = do
     canvas <- startSDL 500 500
     case canvas of
         Nothing => pure ()
-        Just c => (runStateT eventLoop $ MkGame c (500, 500) 10 initial) >>= \_ => pure ()
+        Just c => (runStateT (eventLoop ()) $ MkGame c (500, 500) 12 initial) >>= \_ => pure ()
     endSDL
