@@ -1,0 +1,12 @@
+package life
+
+pkgs = contrib, sdl
+
+sourcedir = src
+
+modules =
+    Life,
+    Main
+
+main = Main
+executable = life
