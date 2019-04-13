@@ -12,7 +12,7 @@ here: https://github.com/edwinb/SDL-idris.
 
 *WARNING*: The bindings seem to be abandoned right now and do not compile with
 Idris 1.3.0. However, there's a fixed version available here:
-https://github.com/beefyhalo/SDL-idris/blob/master/src/Graphics/SDL.idr.
+https://github.com/beefyhalo/SDL-idris
 
 Having installed SDL bindigns, issue the following command:
 
