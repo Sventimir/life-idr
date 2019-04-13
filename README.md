@@ -26,8 +26,8 @@ Usage
 
 I believe the interface is quite intuitive, but just to make sure:
 
-Press [Esc] to exit.
-Press n to go to next generation.
-Click a cell to switch it between alive and dead state.
+* Press [Esc] to exit.
+* Press n to go to next generation.
+* Click a cell to switch it between alive and dead state.
 
 More options will be added in the future!
