@@ -32,6 +32,7 @@ I believe the interface is quite intuitive, but just to make sure:
 * Press i to zoom in.
 * Press o to zoom out.
 * Press c to clear the game state.
+* Press s to dump the board state to stdout.
 * Click a cell to switch it between alive and dead state.
 
 More options will be added in the future!

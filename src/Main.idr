@@ -68,6 +68,15 @@ switchCell coords = do
                 modify $ record { life = insert cell l }
 
 
+outputState : StateT Game IO ()
+outputState = do
+        l <- map S.toList $ gets life
+        lift . sequence_ $ map (putStrLn . toString) l
+        lift $ fflush stdout
+    where
+    toString : (Int, Int) -> String
+    toString (x, y) = show x ++ " " ++ show y
+
 eventLoop : () -> StateT Game IO ()
 eventLoop () = do
     renderState
@@ -82,6 +91,7 @@ eventLoop () = do
         Just (KeyUp (KeyAny 'i')) => (modify $ record { cellSize $= zoom In }) >>= eventLoop
         Just (KeyUp (KeyAny 'o')) => (modify $ record { cellSize $= zoom Out }) >>= eventLoop
         Just (KeyUp (KeyAny 'c')) => (modify $ record { life = initial }) >>= eventLoop
+        Just (KeyUp (KeyAny 's')) => outputState >>= eventLoop
         Just (MouseButtonUp Left x y) => switchCell (x, y) >>= eventLoop
         _ => eventLoop ()
 
